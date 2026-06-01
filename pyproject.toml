@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "critical-care-scores"
+version = "0.2.0"
+description = "Living reference of ICU scoring systems with automated discovery and verification"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "Undecided"}
+authors = [
+    {name = "Kresna Sucandra", email = "kresnasucandra@gmail.com"}
+]
+keywords = [
+    "critical-care",
+    "icu",
+    "scoring-systems",
+    "medical-reference",
+    "verification"
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Healthcare Industry",
+    "Intended Audience :: Science/Research",
+    "License :: Other/Proprietary License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11+",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+]
+
+[project.urls]
+Repository = "https://github.com/SHA888/critical-care-scores"
+Issues = "https://github.com/SHA888/critical-care-scores/issues"
+
+[tool.setuptools]
+packages = []
+
+[tool.uv]
+# uv runs PEP 723 script headers from tools/*.py directly
+# No dependency declaration needed — both tools are stdlib-only
