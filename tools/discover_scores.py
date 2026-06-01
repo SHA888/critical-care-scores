@@ -22,11 +22,11 @@ Architecture (ports & adapters):
     PubMedAdapter          -- concrete, public NCBI E-utilities (optional key)
     McpSourceAdapter       -- documented seam: wire any MCP server you run locally
 
-Keywords are auto-extracted from critical-care-scores.md so the discovery seed
+Keywords are auto-extracted from SCORES.md so the discovery seed
 tracks the same corpus the verification pipeline is annotating.
 
 Usage:
-    uv run discover_scores.py keywords --keywords-from critical-care-scores.md
+    uv run discover_scores.py keywords --keywords-from SCORES.md
     uv run discover_scores.py discover --since 2023 --sources crossref,pubmed --limit 8
     uv run discover_scores.py report --triage candidate --since-run latest
     uv run discover_scores.py report --new-only
@@ -372,7 +372,7 @@ def main() -> int:
     sub = ap.add_subparsers(dest="cmd", required=True)
 
     common = argparse.ArgumentParser(add_help=False)
-    common.add_argument("--keywords-from", default="critical-care-scores.md")
+    common.add_argument("--keywords-from", default="SCORES.md")
     common.add_argument("--db", default="living_refs.db")
     common.add_argument("--mailto", default="researcher@example.org",
                         help="used for Crossref polite pool + NCBI etiquette")
