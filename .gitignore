@@ -48,6 +48,9 @@ Thumbs.db
 *.sqlite
 *.sqlite3
 
+# Output directory
+out/
+
 # Claude Code & harness
 .claude/
 .harness-mem/state
