@@ -70,4 +70,9 @@ Not medical advice. The reference gives identity and intent of each instrument; 
 
 ## License
 
-**Undecided — to discuss before adoption.** No license file is included yet; choose one before any redistribution or external contribution.
+**Dual licensing**:
+
+- **Code** (tools/*.py): [MIT License](LICENSE)
+- **Documentation** (SCORES.md, TODO.md, etc.): [Creative Commons Attribution 4.0 International (CC BY 4.0)](LICENSE.docs)
+
+See individual license files for details. External contributions welcome under these terms.

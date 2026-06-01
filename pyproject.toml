@@ -8,7 +8,7 @@ version = "0.2.0"
 description = "Living reference of ICU scoring systems with automated discovery and verification"
 readme = "README.md"
 requires-python = ">=3.11"
-license = {text = "Undecided"}
+license = {text = "MIT"}
 authors = [
     {name = "Kresna Sucandra", email = "kresnasucandra@gmail.com"}
 ]

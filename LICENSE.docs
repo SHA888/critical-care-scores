@@ -1,0 +1,38 @@
+Creative Commons Attribution 4.0 International Public License
+
+By exercising any rights to the work provided here, you accept and agree to be
+bound by the terms of this Creative Commons Attribution 4.0 International Public
+License ("Public License").
+
+To the extent this Public License may be interpreted as a contract, you are
+granted the rights set forth in Section 3 (License Grant) in consideration for
+your acceptance of these terms and conditions, and the Licensor grants you such
+rights in consideration of benefits the Licensor receives from making the Work
+available under these terms and conditions.
+
+---
+
+FULL LICENSE TEXT
+
+See: https://creativecommons.org/licenses/by/4.0/legalcode
+
+---
+
+APPLIES TO
+
+Documentation files including but not limited to:
+- SCORES.md (Critical Care Scores Reference)
+- TODO.md (Verification Protocol and Roadmap)
+- README.md
+- CLAUDE.md
+
+CODE LICENSE
+
+Software components (tools/discover_scores.py, tools/verify_scores.py) are licensed
+under the MIT License (see LICENSE file).
+
+THIRD-PARTY CITATIONS
+
+This reference cites and attributes medical literature according to source
+(PubMed, Crossref, etc.). Citations are fair use for educational and reference
+purposes. See SCORES.md References section for complete attribution.
