@@ -98,6 +98,19 @@ No formal test suite yet. Validate by:
 - Manual `discover` → inspect discover.db (sanity check dedupe + provenance)
 - Pre-tag full run with --check-dois (validates DOI resolution)
 
+## Commit & Documentation Standards
+
+### No `Co-Authored-By:` trailers
+
+Do not include `Co-Authored-By:` trailers in assistant-generated commit messages. Commit attribution stays with the human author. Boilerplate trailers add noise to history without conveying meaningful authorship.
+
+### English-only requirement
+
+- All Plans.md content must be in English (headers, table columns, task descriptions, status markers)
+- No Japanese characters in Plans.md status markers (use `cc:done` instead of `cc:完了`, `cc:wip` instead of `cc:WIP`, etc)
+- All harness output and documentation must be in English
+- This applies strictly to tracked files; enforce when editing Plans.md
+
 ## References
 
 - **README.md**: Project vision, file organization, quickstart
