@@ -1,8 +1,13 @@
 # Scoring Systems in Critical Care Medicine — A Domain-Organized Reference
 
-**Version:** 0.2.0 · **Updated:** 2026-06-01 · **Supersedes:** 0.1.0
+**Version:** 0.3.0 · **Updated:** 2026-06-02 · **Supersedes:** 0.2.0
 
 ## Changelog
+
+### 0.3.0 — 2026-06-02
+
+- Repo adopts a **single SemVer line** (reference + tooling + calculable platform share one version); this document no longer carries a version number separate from the repo. See [`TODO.md` §4](TODO.md).
+- Added the calculable-score platform (JSON definitions, dual engine, web calculator). **No row, `Status`, or `Key ref` changes** in this revision — reference content is unchanged from 0.2.0.
 
 ### 0.2.0 — 2026-06-01
 

@@ -1,6 +1,6 @@
 # TODO — Score Currency Verification (`SCORES.md`)
 
-**Companion to:** `SCORES.md` v0.2.0 · **TODO version:** 0.1.0 · **Created:** 2026-06-01
+**Companion to:** `SCORES.md` · **Repo release:** 0.3.0 (single SemVer line — see §4) · **Created:** 2026-06-01
 
 Goal: drive the document's `unverified` count from **161 → 0**, with every non-`unverified` row backed by a resolvable citation, enforced by `verify_scores.py` in CI. Reaching zero unlocks the `1.0.0` tag of the reference.
 
@@ -43,33 +43,29 @@ A single table row is **Done** when all hold:
 
 ---
 
-## 2. CI enforcement (the mechanism)
+## 2. CI enforcement (the mechanism) — live
 
-`verify_scores.py` is the gate. Wire it so the build is red on any contract breach.
+`.github/workflows/verify-scores.yml` is the gate and is the source of truth;
+the snippet below is illustrative. Two jobs run on every PR/push:
+`verify` (both contracts + dual-engine golden vectors + typecheck + build) and
+`deploy` (publishes the SPA to GitHub Pages on push to `main`).
 
-- [ ] Add to repo root with the reference file.
-- [ ] Pin baseline ceiling to current count (**161**) and lower it with every merged batch.
-- [ ] `.github/workflows/verify-scores.yml`:
+- [x] Workflow live; `verify` red on any contract breach.
+- [x] Baseline ceiling pinned at **161**; lower it on each merged batch (the ratchet).
+- [x] DOIs resolved via the **DOI Handle System API** (`--check-dois`, blocking on push) — see `tools/verify_scores.py:check_doi_resolves`.
+- [x] Actions pinned to Node-24 majors (checkout@v6, setup-node@v6, setup-uv@v7, upload-pages-artifact@v5, deploy-pages@v5).
+- [ ] Branch protection: require the **`verify`** job green before merge.
+- [ ] On each domain batch merge: decrement `--max-unverified` to the new actual count (ratchet — only down).
+- [ ] Pre-`1.0.0`: ratchet reaches `--max-unverified 0` with `--check-dois` green.
 
-```yaml
-name: verify-scores
-on: [pull_request, push]
-jobs:
-  contract:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
-      - name: Enforce score-currency contract
-        run: uv run verify_scores.py SCORES.md --max-unverified 161
-      - name: Resolve all cited DOIs (nightly / pre-tag)
-        if: github.event_name == 'push'
-        run: uv run verify_scores.py SCORES.md --max-unverified 161 --check-dois
+Run the same gates locally (stdlib-only; `--no-project` mirrors CI):
+
+```sh
+uv run --no-project python tools/verify_scores.py SCORES.md --max-unverified 161
+uv run --no-project --with jsonschema python tools/verify_definitions.py
+uv run --no-project --with pytest python -m pytest engine/tests -q
+uv run --no-project python tools/verify_scores.py SCORES.md --max-unverified 161 --check-dois
 ```
-
-- [ ] Branch protection: require `verify-scores / contract` green before merge.
-- [ ] On each domain batch merge: decrement `--max-unverified` in the workflow to the new actual count (the ratchet — it can only go down).
-- [ ] Pre-`1.0.0` tag job runs with `--check-dois` and `--max-unverified 0`.
 
 ---
 
@@ -112,17 +108,26 @@ Priority tiers reflect **probability of having moved since derivation × clinica
 
 ---
 
-## 4. Milestones → SemVer mapping
+## 4. Milestones → SemVer (single repo version line)
 
-| Milestone | Trigger                                     | Doc version      | Gate ceiling          |
-| --------- | ------------------------------------------- | ---------------- | --------------------- |
-| M0 (done) | v0.2.0 shipped; gate live                   | 0.2.0            | 161                   |
-| M1        | each domain batch merged                    | 0.2.x patch each | lowered to new actual |
-| M2        | all **P1** domains done                     | 0.3.0            | ~ verified count      |
-| M3        | **P1 + P2** done                            | 0.4.0            | ~                     |
-| M4        | **all** rows verified, `--check-dois` green | **1.0.0**        | **0**                 |
+One version line for the whole repo (reference + tooling + calculable platform).
+Two tracks advance **within** it: the **verification ratchet** (lower `unverified`)
+and **calculable coverage** (encode verified scores). The calculable-track DoD and
+backlog are in §5b.
 
-Rule: a doc version bump requires a green `verify-scores` run at the **new** ceiling. No bump without a lowered ratchet.
+| Release | Trigger | Verification (ceiling) | Calculable scores |
+| ------- | ------- | ---------------------- | ----------------- |
+| 0.2.0 (done) | Reference + citation gate live | 161 (11 verified) | — |
+| **0.3.0 (done)** | Calculable platform: schema, dual engine, contract gate, SPA, CI/Pages | 161 (held) | 4 (qSOFA, SIRS, P/F-ARDS, KDIGO AKI) |
+| 0.3.x | each verified batch merged; encode cleared scores | lowered per batch | grows with verified count |
+| 0.4.0 | all **P1** domains verified (+ P1 scores calculable) | ~ P1 verified | P1 |
+| 0.5.0 | **P1 + P2** verified | ~ | P2; shareable URLs (no PHI server-side) |
+| 1.0.0 | **all** rows verified, `--check-dois` green | **0** | all currently-verifiable |
+| post-1.0 | mobile (React Native) reusing TS engine + `scores/*.json` | — | next major track |
+
+Rule: the ratchet may only go **down**; a release bump requires a green
+`verify-scores` run. The 0.3.0 platform release **held** the ceiling at 161
+(no rows verified in it) — ratchet lowering resumes at 0.3.x.
 
 ---
 
@@ -135,28 +140,22 @@ Rule: a doc version bump requires a green `verify-scores` run at the **new** cei
 
 ---
 
-## 5b. Calculable-scores track (web/mobile platform)
+## 5b. Calculable-scores track (web/mobile) — DoD & backlog
 
-A parallel ratchet to the citation contract: the **calculation contract**
-(`tools/verify_definitions.py`) requires each `scores/*.json` to pass schema +
-reference resolution + golden vectors reproduced by **both** engines. A score is only
-exposed in the calculator once it passes the citation contract **and** the calculation
-contract. See [`docs/`](docs/) for the SDLC framing (12207 / IEC 62304 / ISO 14971).
+The **calculation contract** (`tools/verify_definitions.py`) requires each
+`scores/*.json` to pass schema + reference resolution + golden vectors reproduced
+by **both** engines. A score is exposed in the calculator only after it passes the
+citation contract **and** the calculation contract. Release versions for this track
+live in the unified table in §4. SDLC framing: see [`docs/`](docs/)
+(12207 / IEC 62304 / ISO 14971).
 
-| Milestone | Trigger | Doc version | Calculable scores |
-| --------- | ------- | ----------- | ----------------- |
-| C0 (done) | schema + dual engine + contract gate + SPA + CI/Pages | 0.3.0 | 4 (qSOFA, SIRS, P/F-ARDS, KDIGO AKI) |
-| C1 | encode each verified score as it clears the citation gate | 0.3.x | grows with verified count |
-| C2 | all P1 verified scores calculable | 0.4.0 | ~ |
-| C3 | mobile (React Native) reusing TS engine + `scores/*.json` | — | next major track |
+**DoD per definition:** (a) score is citation-verified in `SCORES.md`; (b) ≥1 golden
+vector from the primary publication; (c) green `verify_definitions.py` + `pytest`
+(Python) + `vitest` (TS).
 
-Rule: a new `scores/*.json` requires (a) the score is citation-verified in `SCORES.md`,
-(b) ≥1 golden vector from the primary publication, (c) green `verify_definitions.py` +
-green `pytest` (Python) + green `vitest` (TS). DoD per definition = all three.
-
-Backlog (next definitions, pull from already-verified rows / add references first):
-SOFA (needs ref), GCS (needs ref), NEWS2 (needs ref), MELD 3.0 (R5 — cross-check formula
-vs OPTN worked example before trusting the golden vector), CURB-65 (needs ref).
+**Backlog** (next definitions — add/verify the citation first): SOFA, GCS, NEWS2,
+MELD 3.0 (R5 — cross-check the formula vs the OPTN worked example before trusting
+the golden vector), CURB-65.
 
 ---
 

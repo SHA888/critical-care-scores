@@ -44,21 +44,20 @@ cd web && npm ci && npm test && npm run dev                 # TS engine tests + 
 
 ## Files
 
-| File              | Role                                                                 | Version |
-| ----------------- | -------------------------------------------------------------------- | ------- |
-| `SCORES.md`       | The reference: 24 domains, ~172 rows, `Status` + `Key ref` per row   | 0.2.0   |
-| `TODO.md`         | Atomic verification backlog, protocol, SemVer milestones             | 0.1.0   |
-| `tools/`          | **Directory** containing discovery and verification tools            | —       |
-| —                 | `discover_scores.py` — keyword→DOI harvester; feeds the verification queue | 0.1.0   |
-| —                 | `verify_scores.py` — CI gate; enforces status/citation contract + ratchet   | —       |
-| —                 | `verify_definitions.py` — CI gate; schema + R# refs + golden-vector contract | —       |
-| `schema/`         | `score.schema.json` — JSON Schema for calculable definitions         | —       |
-| `scores/`         | Structured, calculable score definitions (`<id>.json`)               | —       |
-| `engine/`         | Python reference calculation engine (`ccscores`) + golden-vector tests | 0.1.0   |
-| `web/`            | React + Vite SPA + TypeScript engine (client-side calculator)        | 0.3.0   |
-| `docs/`           | SDLC artifacts: `REQUIREMENTS.md`, `ARCHITECTURE.md`, `RISK.md`      | —       |
+**Project version: 0.3.0** — a single SemVer line for the whole repo (reference + tooling + calculable platform); roadmap in [`TODO.md` §4](TODO.md).
 
-Current state: **11 rows verified, 161 `unverified`** (a citation-check-pending flag, _not_ an invalidity claim). `1.0.0` of the reference = `unverified == 0` with all DOIs resolving.
+| File              | Role                                                                 |
+| ----------------- | -------------------------------------------------------------------- |
+| `SCORES.md`       | The reference: 24 domains, ~172 rows, `Status` + `Key ref` per row   |
+| `TODO.md`         | Atomic verification backlog, protocol, single-line SemVer milestones |
+| `tools/`          | `discover_scores.py` (keyword→DOI harvester), `verify_scores.py` (citation contract + DOI resolution), `verify_definitions.py` (calculation contract) |
+| `schema/`         | `score.schema.json` — JSON Schema for calculable definitions         |
+| `scores/`         | Structured, calculable score definitions (`<id>.json`)               |
+| `engine/`         | Python reference calculation engine (`ccscores`) + golden-vector tests |
+| `web/`            | React + Vite SPA + TypeScript engine (client-side calculator)        |
+| `docs/`           | SDLC artifacts: `REQUIREMENTS.md`, `ARCHITECTURE.md`, `RISK.md`      |
+
+Current state (**0.3.0**): calculable platform live (4 scores) at [sha888.github.io/critical-care-scores](https://sha888.github.io/critical-care-scores/). Reference verification: **11 rows verified, 161 `unverified`** (a citation-check-pending flag, _not_ an invalidity claim). **`1.0.0`** = `unverified == 0` with all DOIs resolving.
 
 ## Quickstart
 
