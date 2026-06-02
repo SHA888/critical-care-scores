@@ -1,0 +1,200 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/SHA888/critical-care-scores/schema/score.schema.json",
+  "title": "Critical-care score definition",
+  "description": "Declarative, machine-readable definition of a calculable ICU score. Data is the database: the same file powers the Python reference engine, the TypeScript web/mobile engine, and the verification gate. Every clinical cutoff must cite an R# reference present in SCORES.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "name", "section", "status", "references", "disclaimer", "inputs", "scoring", "output", "tests"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*[a-z0-9]$",
+      "description": "Stable kebab-case identifier; also the filename stem (scores/<id>.json)."
+    },
+    "name": { "type": "string", "minLength": 1, "description": "Short display name, e.g. 'qSOFA'." },
+    "full_name": { "type": "string", "description": "Expanded name, e.g. 'quick Sequential Organ Failure Assessment'." },
+    "section": { "type": "integer", "minimum": 1, "maximum": 24, "description": "SCORES.md domain section number." },
+    "version": { "type": "string", "default": "1.0.0", "description": "SemVer of this definition's content." },
+    "status": {
+      "type": "string",
+      "enum": ["current", "superseded", "contested"],
+      "description": "Must be a citation-verified status. 'unverified' scores are never calculable and must not be encoded here."
+    },
+    "references": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "pattern": "^R\\d+$" },
+      "description": "R# codes that must resolve to entries in the SCORES.md References section."
+    },
+    "purpose": { "type": "string", "description": "One-line clinical purpose / what it consumes." },
+    "disclaimer": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Mandatory clinical-safety disclaimer shown in the UI."
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "source_doi": { "type": "string", "description": "DOI of the publication the formula/cutoffs were transcribed from." },
+        "encoded": { "type": "string", "format": "date", "description": "ISO date the definition was encoded." },
+        "encoder": { "type": "string" },
+        "notes": { "type": "string" }
+      }
+    },
+    "inputs": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/input" }
+    },
+    "scoring": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["aggregate"],
+      "properties": {
+        "aggregate": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["type"],
+              "properties": {
+                "type": { "const": "sum" },
+                "rounding": { "type": "string", "enum": ["none", "nearest", "floor", "ceil"], "default": "none" }
+              },
+              "description": "Total = sum of each input's mapped points."
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["type", "expr"],
+              "properties": {
+                "type": { "const": "formula" },
+                "expr": {
+                  "type": "string",
+                  "description": "Safe arithmetic expression over input ids. Allowed: + - * / ( ), numbers, input ids, booleans coerced to 1/0, and functions ln, exp, log10, sqrt, min, max, round, floor, ceil, abs, clamp(x,lo,hi). No eval / no arbitrary calls."
+                },
+                "rounding": { "type": "string", "enum": ["none", "nearest", "floor", "ceil"], "default": "none" }
+              },
+              "description": "Total = evaluation of expr over raw input values."
+            }
+          ]
+        }
+      }
+    },
+    "output": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bands"],
+      "properties": {
+        "unit": { "type": "string", "description": "Unit of the resulting score, e.g. 'points'." },
+        "bands": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["label"],
+            "properties": {
+              "min": { "type": "number", "description": "Inclusive lower bound of the band." },
+              "max": { "type": "number", "description": "Inclusive upper bound of the band." },
+              "label": { "type": "string", "minLength": 1 },
+              "interpretation": { "type": "string" },
+              "mortality": { "type": "string", "description": "Free-text mortality/outcome estimate, e.g. '1.9% 90-day'." },
+              "color": { "type": "string", "enum": ["green", "yellow", "orange", "red", "gray"] },
+              "ref": { "type": "string", "pattern": "^R\\d+$", "description": "R# backing this band's interpretation." }
+            }
+          }
+        }
+      }
+    },
+    "tests": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Golden vectors taken from the primary publication's worked examples. Both engines must reproduce these exactly. These ARE the acceptance criteria.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["inputs", "expected_score"],
+        "properties": {
+          "name": { "type": "string" },
+          "inputs": { "type": "object", "description": "Map of input id -> value." },
+          "expected_score": { "type": "number" },
+          "expected_band": { "type": "string", "description": "Expected band label." }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "input": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label", "type"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$", "description": "Identifier usable in formula expressions." },
+        "label": { "type": "string", "minLength": 1 },
+        "type": { "type": "string", "enum": ["integer", "number", "boolean", "enum"] },
+        "unit": { "type": "string" },
+        "min": { "type": "number" },
+        "max": { "type": "number" },
+        "required": { "type": "boolean", "default": true },
+        "help": { "type": "string" },
+        "options": {
+          "type": "array",
+          "description": "Required for type 'enum'. Each option may carry points (for sum aggregate).",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["label", "value"],
+            "properties": {
+              "label": { "type": "string", "minLength": 1 },
+              "value": { "type": ["string", "number", "boolean"] },
+              "points": { "type": "number" }
+            }
+          }
+        },
+        "mapping": {
+          "description": "How a raw value becomes points under a 'sum' aggregate. Ignored under a 'formula' aggregate.",
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["type", "bins"],
+              "properties": {
+                "type": { "const": "bins" },
+                "default_points": { "type": "number", "default": 0 },
+                "bins": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["op", "value", "points"],
+                    "properties": {
+                      "op": { "type": "string", "enum": [">=", ">", "<=", "<", "==", "between"] },
+                      "value": { "description": "Number for comparison ops; [lo, hi] array for 'between' (inclusive)." },
+                      "points": { "type": "number" }
+                    }
+                  },
+                  "description": "First matching bin (top-down) sets the points; otherwise default_points."
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["type"],
+              "properties": {
+                "type": { "const": "boolean" },
+                "true_points": { "type": "number", "default": 1 },
+                "false_points": { "type": "number", "default": 0 }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -14,6 +14,34 @@ tools/discover_scores.py  ──finds candidate DOIs──▶  human/triage  ─
 
 **Discovery proposes, the gate disposes.** `discover` only _finds_ and triages candidates; it never sets a status. `verify` only _checks_ that claimed statuses are cited; it never fetches. The Markdown doc is the single source of truth.
 
+## Calculator (web + future mobile)
+
+On top of the catalogue sits a **calculation layer**: verified scores are encoded as
+structured JSON definitions and computed in a browser-only SPA — no patient data leaves
+the device. The platform follows an industry-standard SDLC framing (ISO/IEC/IEEE 12207,
+IEC 62304 Class B, ISO 14971 risk management); see [`docs/`](docs/).
+
+```
+scores/<id>.json ──schema + R# refs + golden vectors──▶ verify_definitions.py (calc contract)
+        │                                                          │
+        ├─▶ engine/ccscores (Python reference) ─┐                  │
+        └─▶ web/src/engine  (TypeScript)        ├─ both reproduce every golden vector
+                                                ▼
+                              web/  React + Vite SPA ─▶ GitHub Pages
+```
+
+**The calculator exposes only scores that pass _both_ contracts** — citation-verified
+(`SCORES.md`) **and** formula-verified (golden vectors reproduced by two independent
+engines). `unverified` rows stay reference-only. Run it:
+
+```sh
+# enforce the calculation contract (schema + references + golden vectors)
+uv run --with jsonschema tools/verify_definitions.py
+uv run --with pytest python -m pytest engine/tests -q       # Python reference engine
+
+cd web && npm ci && npm test && npm run dev                 # TS engine tests + dev server
+```
+
 ## Files
 
 | File              | Role                                                                 | Version |
@@ -23,6 +51,12 @@ tools/discover_scores.py  ──finds candidate DOIs──▶  human/triage  ─
 | `tools/`          | **Directory** containing discovery and verification tools            | —       |
 | —                 | `discover_scores.py` — keyword→DOI harvester; feeds the verification queue | 0.1.0   |
 | —                 | `verify_scores.py` — CI gate; enforces status/citation contract + ratchet   | —       |
+| —                 | `verify_definitions.py` — CI gate; schema + R# refs + golden-vector contract | —       |
+| `schema/`         | `score.schema.json` — JSON Schema for calculable definitions         | —       |
+| `scores/`         | Structured, calculable score definitions (`<id>.json`)               | —       |
+| `engine/`         | Python reference calculation engine (`ccscores`) + golden-vector tests | 0.1.0   |
+| `web/`            | React + Vite SPA + TypeScript engine (client-side calculator)        | 0.3.0   |
+| `docs/`           | SDLC artifacts: `REQUIREMENTS.md`, `ARCHITECTURE.md`, `RISK.md`      | —       |
 
 Current state: **11 rows verified, 161 `unverified`** (a citation-check-pending flag, _not_ an invalidity claim). `1.0.0` of the reference = `unverified == 0` with all DOIs resolving.
 

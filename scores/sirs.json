@@ -1,0 +1,73 @@
+{
+  "$schema": "../schema/score.schema.json",
+  "id": "sirs",
+  "name": "SIRS",
+  "full_name": "Systemic Inflammatory Response Syndrome criteria",
+  "section": 3,
+  "version": "1.0.0",
+  "status": "superseded",
+  "references": ["R7"],
+  "purpose": "Count of systemic inflammatory criteria (≥2 historically defined SIRS).",
+  "disclaimer": "Decision support only. SIRS was removed from the sepsis definition by Sepsis-3 (2016) and has poor specificity; retained for descriptive/legacy use. Verify against the primary source before any clinical decision.",
+  "provenance": {
+    "encoded": "2026-06-02",
+    "notes": "ACCP/SCCM 1992 criteria; superseded status per SCORES.md R7."
+  },
+  "inputs": [
+    {
+      "id": "temp",
+      "label": "Temperature",
+      "type": "number",
+      "unit": "°C",
+      "min": 25,
+      "max": 45,
+      "help": "1 point if > 38 °C or < 36 °C.",
+      "mapping": { "type": "bins", "default_points": 0, "bins": [{ "op": ">", "value": 38, "points": 1 }, { "op": "<", "value": 36, "points": 1 }] }
+    },
+    {
+      "id": "hr",
+      "label": "Heart rate",
+      "type": "integer",
+      "unit": "beats/min",
+      "min": 0,
+      "max": 300,
+      "help": "1 point if > 90/min.",
+      "mapping": { "type": "bins", "default_points": 0, "bins": [{ "op": ">", "value": 90, "points": 1 }] }
+    },
+    {
+      "id": "rr",
+      "label": "Respiratory rate (or PaCO₂ < 32 mmHg)",
+      "type": "integer",
+      "unit": "breaths/min",
+      "min": 0,
+      "max": 80,
+      "help": "1 point if > 20/min (or PaCO₂ < 32 mmHg).",
+      "mapping": { "type": "bins", "default_points": 0, "bins": [{ "op": ">", "value": 20, "points": 1 }] }
+    },
+    {
+      "id": "wbc_criterion",
+      "label": "WBC criterion",
+      "type": "enum",
+      "help": "1 point if WBC > 12, < 4 (×10⁹/L), or > 10% immature bands.",
+      "options": [
+        { "label": "Normal", "value": "normal", "points": 0 },
+        { "label": "WBC > 12 ×10⁹/L", "value": "high", "points": 1 },
+        { "label": "WBC < 4 ×10⁹/L", "value": "low", "points": 1 },
+        { "label": "> 10% bands", "value": "bands", "points": 1 }
+      ]
+    }
+  ],
+  "scoring": { "aggregate": { "type": "sum" } },
+  "output": {
+    "unit": "points",
+    "bands": [
+      { "min": 0, "max": 1, "label": "No SIRS", "interpretation": "Fewer than 2 criteria.", "color": "green", "ref": "R7" },
+      { "min": 2, "max": 4, "label": "SIRS", "interpretation": "≥ 2 criteria met (historical SIRS). Non-specific; not a sepsis diagnosis under Sepsis-3.", "color": "yellow", "ref": "R7" }
+    ]
+  },
+  "tests": [
+    { "name": "four criteria", "inputs": { "temp": 39, "hr": 110, "rr": 24, "wbc_criterion": "high" }, "expected_score": 4, "expected_band": "SIRS" },
+    { "name": "hypothermia + tachycardia", "inputs": { "temp": 35.5, "hr": 95, "rr": 18, "wbc_criterion": "normal" }, "expected_score": 2, "expected_band": "SIRS" },
+    { "name": "none", "inputs": { "temp": 37, "hr": 80, "rr": 16, "wbc_criterion": "normal" }, "expected_score": 0, "expected_band": "No SIRS" }
+  ]
+}

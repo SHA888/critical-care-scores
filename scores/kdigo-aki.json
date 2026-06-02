@@ -1,0 +1,57 @@
+{
+  "$schema": "../schema/score.schema.json",
+  "id": "kdigo-aki",
+  "name": "KDIGO AKI stage",
+  "full_name": "KDIGO Acute Kidney Injury staging",
+  "section": 8,
+  "version": "1.0.0",
+  "status": "current",
+  "references": ["R6"],
+  "purpose": "Stages AKI severity as the higher of the serum-creatinine and urine-output criteria.",
+  "disclaimer": "Decision support only. Stage is the WORSE of the creatinine and urine-output criteria; baseline creatinine and timed urine output must be assessed clinically. The 2026 KDIGO update is in review. Verify against the primary source before any clinical decision.",
+  "provenance": {
+    "encoded": "2026-06-02",
+    "notes": "KDIGO AKI 2012 (operative). Currency per SCORES.md R6."
+  },
+  "inputs": [
+    {
+      "id": "creatinine_stage",
+      "label": "Serum-creatinine criterion",
+      "type": "enum",
+      "help": "Highest creatinine-based stage met.",
+      "options": [
+        { "label": "None (< 1.5× baseline and < 0.3 mg/dL rise)", "value": 0 },
+        { "label": "Stage 1 (1.5–1.9× baseline, or ≥ 0.3 mg/dL rise)", "value": 1 },
+        { "label": "Stage 2 (2.0–2.9× baseline)", "value": 2 },
+        { "label": "Stage 3 (≥ 3.0× baseline, or ≥ 4.0 mg/dL, or RRT started)", "value": 3 }
+      ]
+    },
+    {
+      "id": "urine_stage",
+      "label": "Urine-output criterion",
+      "type": "enum",
+      "help": "Highest urine-output-based stage met.",
+      "options": [
+        { "label": "None (≥ 0.5 mL/kg/h)", "value": 0 },
+        { "label": "Stage 1 (< 0.5 mL/kg/h for 6–12 h)", "value": 1 },
+        { "label": "Stage 2 (< 0.5 mL/kg/h for ≥ 12 h)", "value": 2 },
+        { "label": "Stage 3 (< 0.3 mL/kg/h for ≥ 24 h, or anuria ≥ 12 h)", "value": 3 }
+      ]
+    }
+  ],
+  "scoring": { "aggregate": { "type": "formula", "expr": "max(creatinine_stage, urine_stage)" } },
+  "output": {
+    "unit": "stage",
+    "bands": [
+      { "min": 0, "max": 0, "label": "No AKI", "interpretation": "Neither criterion met.", "color": "green", "ref": "R6" },
+      { "min": 1, "max": 1, "label": "Stage 1", "interpretation": "KDIGO AKI stage 1.", "color": "yellow", "ref": "R6" },
+      { "min": 2, "max": 2, "label": "Stage 2", "interpretation": "KDIGO AKI stage 2.", "color": "orange", "ref": "R6" },
+      { "min": 3, "max": 3, "label": "Stage 3", "interpretation": "KDIGO AKI stage 3.", "color": "red", "ref": "R6" }
+    ]
+  },
+  "tests": [
+    { "name": "creatinine drives stage 3", "inputs": { "creatinine_stage": 3, "urine_stage": 1 }, "expected_score": 3, "expected_band": "Stage 3" },
+    { "name": "urine drives stage 2", "inputs": { "creatinine_stage": 0, "urine_stage": 2 }, "expected_score": 2, "expected_band": "Stage 2" },
+    { "name": "no AKI", "inputs": { "creatinine_stage": 0, "urine_stage": 0 }, "expected_score": 0, "expected_band": "No AKI" }
+  ]
+}

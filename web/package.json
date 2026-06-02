@@ -1,0 +1,35 @@
+{
+  "name": "critical-care-scores-web",
+  "private": true,
+  "version": "0.3.0",
+  "type": "module",
+  "description": "Client-side calculator UI for verified critical-care score definitions. All computation runs in the browser; no patient data leaves the device.",
+  "scripts": {
+    "sync": "node scripts/sync-scores.mjs",
+    "predev": "npm run sync",
+    "dev": "vite",
+    "prebuild": "npm run sync",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "pretest": "npm run sync",
+    "test": "vitest run",
+    "pretypecheck": "npm run sync",
+    "typecheck": "tsc -b --noEmit"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "jsdom": "^29.1.1",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11",
+    "vitest": "^2.1.8"
+  }
+}

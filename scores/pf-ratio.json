@@ -1,0 +1,52 @@
+{
+  "$schema": "../schema/score.schema.json",
+  "id": "pf-ratio",
+  "name": "P/F ratio (ARDS severity)",
+  "full_name": "PaO₂ / FiO₂ ratio with Berlin ARDS severity bands",
+  "section": 5,
+  "version": "1.0.0",
+  "status": "superseded",
+  "references": ["R1", "R2"],
+  "purpose": "Oxygenation index; classifies ARDS severity (Berlin) at PEEP ≥ 5 cmH₂O.",
+  "disclaimer": "Decision support only. Berlin severity bands require PEEP/CPAP ≥ 5 cmH₂O and acute bilateral infiltrates not fully explained by cardiac failure; the 2024 Global Definition (R1) updates ARDS criteria. P/F alone is not an ARDS diagnosis. Verify against the primary source before any clinical decision.",
+  "provenance": {
+    "encoded": "2026-06-02",
+    "notes": "Berlin Definition bands; superseded by Global Definition of ARDS (R1, R2)."
+  },
+  "inputs": [
+    {
+      "id": "pao2",
+      "label": "PaO₂ (arterial)",
+      "type": "number",
+      "unit": "mmHg",
+      "min": 10,
+      "max": 700,
+      "help": "Arterial partial pressure of oxygen."
+    },
+    {
+      "id": "fio2",
+      "label": "FiO₂ (fraction)",
+      "type": "number",
+      "unit": "fraction (0.21–1.0)",
+      "min": 0.21,
+      "max": 1.0,
+      "help": "Inspired oxygen fraction, e.g. 0.5 for 50%."
+    }
+  ],
+  "scoring": { "aggregate": { "type": "formula", "expr": "round(pao2 / fio2)" } },
+  "output": {
+    "unit": "mmHg",
+    "bands": [
+      { "max": 100, "label": "Severe ARDS", "interpretation": "P/F ≤ 100 at PEEP ≥ 5.", "color": "red", "ref": "R2" },
+      { "min": 100, "max": 200, "label": "Moderate ARDS", "interpretation": "100 < P/F ≤ 200 at PEEP ≥ 5.", "color": "orange", "ref": "R2" },
+      { "min": 200, "max": 300, "label": "Mild ARDS", "interpretation": "200 < P/F ≤ 300 at PEEP ≥ 5.", "color": "yellow", "ref": "R2" },
+      { "min": 300, "label": "No ARDS by P/F", "interpretation": "P/F > 300; does not meet Berlin oxygenation criterion.", "color": "green", "ref": "R2" }
+    ]
+  },
+  "tests": [
+    { "name": "severe", "inputs": { "pao2": 80, "fio2": 0.8 }, "expected_score": 100, "expected_band": "Severe ARDS" },
+    { "name": "moderate", "inputs": { "pao2": 150, "fio2": 1.0 }, "expected_score": 150, "expected_band": "Moderate ARDS" },
+    { "name": "mild", "inputs": { "pao2": 125, "fio2": 0.5 }, "expected_score": 250, "expected_band": "Mild ARDS" },
+    { "name": "no ARDS", "inputs": { "pao2": 200, "fio2": 0.5 }, "expected_score": 400, "expected_band": "No ARDS by P/F" }
+  ]
+}
