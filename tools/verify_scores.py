@@ -92,6 +92,55 @@ def parse(md: str) -> tuple[list[Row], set[str]]:
     return rows, ref_codes
 
 
+DOI_UA = "critical-care-scores-verify/1.0 (+https://github.com/SHA888/critical-care-scores)"
+
+
+def check_doi_resolves(doi: str, timeout: int = 15, retries: int = 2) -> str | None:
+    """Resolve a bare DOI via the DOI Handle System content-negotiation API.
+
+    Uses https://doi.org/api/handles/<doi> instead of a HEAD on the redirect
+    target: the handle API is built for programmatic resolution and returns a
+    JSON `responseCode` (1 = resolves, 100 = handle not found), so it doesn't
+    trip the anti-bot 403s that publishers (JAMA, ATS, …) return to HEAD probes.
+
+    A non-resolving handle (responseCode != 1) is a definitive failure (no retry).
+    Transient network/timeout errors are retried so a momentary API blip can't
+    falsely fail the gate. Returns None if the DOI resolves, else a reason string.
+    """
+    import json
+    import time
+    import urllib.error
+    import urllib.parse
+    import urllib.request
+
+    api = "https://doi.org/api/handles/" + urllib.parse.quote(doi, safe="/")
+    req = urllib.request.Request(api, headers={"User-Agent": DOI_UA, "Accept": "application/json"})
+    last_net_err = ""
+    for attempt in range(retries + 1):
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                data = json.load(resp)
+        except urllib.error.HTTPError as e:  # 404 still carries a JSON body with responseCode
+            try:
+                data = json.load(e)
+            except Exception:
+                last_net_err = f"HTTP {e.code}"
+                time.sleep(1.0 * (attempt + 1))
+                continue
+        except Exception as e:  # noqa: BLE001 - network/timeout/DNS: transient, retry
+            last_net_err = str(e)
+            time.sleep(1.0 * (attempt + 1))
+            continue
+
+        rc = data.get("responseCode")
+        if rc == 1:
+            return None
+        reason = {100: "handle not found", 200: "values not found", 2: "resolution error"}.get(rc, "")
+        return f"responseCode {rc}{' (' + reason + ')' if reason else ''}"
+
+    return f"network error after {retries + 1} attempts ({last_net_err})"
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("path")
@@ -131,16 +180,12 @@ def main() -> int:
             "(a PR may only lower this number)")
 
     if args.check_dois:
-        import urllib.request
-        dois = re.findall(r"https?://doi\.org/\S+", md)
-        for url in sorted(set(dois)):
-            try:
-                req = urllib.request.Request(url, method="HEAD")
-                with urllib.request.urlopen(req, timeout=15) as resp:
-                    if resp.status >= 400:
-                        errors.append(f"DOI not resolving ({resp.status}): {url}")
-            except Exception as e:  # noqa: BLE001
-                errors.append(f"DOI check failed: {url} ({e})")
+        # Capture the bare DOI after doi.org/ and resolve via the Handle System API.
+        dois = re.findall(r"https?://doi\.org/(\S+)", md)
+        for doi in sorted({d.rstrip(".,;)]") for d in dois}):
+            reason = check_doi_resolves(doi)
+            if reason:
+                errors.append(f"DOI not resolving: {doi} ({reason})")
 
     verified = len(rows) - unverified
     print(f"score rows: {len(rows)} | verified: {verified} | unverified: {unverified} "
