@@ -32,7 +32,7 @@ with ≥1 `R#` resolving in References; `--max-unverified` lowered to the new ac
 
 | Task | Description | DoD | Depends | Status |
 |------|-------------|-----|---------|--------|
-| 1.1 | Verify §1 General severity — TODO T1 (APACHE/SAPS/SOFA/MODS/…) | tier verified + ratchet lowered + gate green | - | cc:TODO |
+| 1.1 | Verify §1 General severity — TODO T1 (APACHE/SAPS/SOFA/MODS/…) | tier verified + ratchet lowered + gate green | - | cc:wip |
 | 1.2 | Verify §2 Early warning — T2 (NEWS2/MEWS/ViEWS/…) | tier verified + ratchet lowered + gate green | - | cc:TODO |
 | 1.3 | Verify §5 Respiratory remaining — T3 (Murray/P-F/CURB-65/PSI/4C/…) | tier verified + ratchet lowered + gate green | - | cc:TODO |
 | 1.4 | Verify §6 Cardiovascular/shock — T4 (GRACE/HEART/SCAI SHOCK/Wells/…) | tier verified + ratchet lowered + gate green | - | cc:TODO |
