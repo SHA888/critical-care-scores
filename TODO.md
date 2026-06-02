@@ -135,6 +135,31 @@ Rule: a doc version bump requires a green `verify-scores` run at the **new** cei
 
 ---
 
+## 5b. Calculable-scores track (web/mobile platform)
+
+A parallel ratchet to the citation contract: the **calculation contract**
+(`tools/verify_definitions.py`) requires each `scores/*.json` to pass schema +
+reference resolution + golden vectors reproduced by **both** engines. A score is only
+exposed in the calculator once it passes the citation contract **and** the calculation
+contract. See [`docs/`](docs/) for the SDLC framing (12207 / IEC 62304 / ISO 14971).
+
+| Milestone | Trigger | Doc version | Calculable scores |
+| --------- | ------- | ----------- | ----------------- |
+| C0 (done) | schema + dual engine + contract gate + SPA + CI/Pages | 0.3.0 | 4 (qSOFA, SIRS, P/F-ARDS, KDIGO AKI) |
+| C1 | encode each verified score as it clears the citation gate | 0.3.x | grows with verified count |
+| C2 | all P1 verified scores calculable | 0.4.0 | ~ |
+| C3 | mobile (React Native) reusing TS engine + `scores/*.json` | — | next major track |
+
+Rule: a new `scores/*.json` requires (a) the score is citation-verified in `SCORES.md`,
+(b) ≥1 golden vector from the primary publication, (c) green `verify_definitions.py` +
+green `pytest` (Python) + green `vitest` (TS). DoD per definition = all three.
+
+Backlog (next definitions, pull from already-verified rows / add references first):
+SOFA (needs ref), GCS (needs ref), NEWS2 (needs ref), MELD 3.0 (R5 — cross-check formula
+vs OPTN worked example before trusting the golden vector), CURB-65 (needs ref).
+
+---
+
 ## 6. Known re-verification triggers (watch list)
 
 - [ ] **KDIGO 2026 AKI/AKD** final publication → re-verify §8 KDIGO row (currently `current` on the 2012 guideline; 2026 draft in review through 2026-05-11).

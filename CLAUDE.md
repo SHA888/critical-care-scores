@@ -24,6 +24,23 @@ A living reference of ICU scoring systems with automated discovery and verificat
 | `TODO.md` | Verification protocol, Definition of Done, work breakdown by priority tier, milestones to v1.0.0. |
 | `tools/discover_scores.py` v0.1 | Literature harvester: query keywords → DOI dedup → living SQLite DB upsert. Ports: Crossref (public), PubMed (public), MCP (stub). |
 | `tools/verify_scores.py` | CI gate: validates status/citation contract + ratchet on unverified count. Enforces 6 rules (see Contract below). |
+| `schema/score.schema.json` | JSON Schema (Draft 2020-12) for **calculable** score definitions. |
+| `scores/<id>.json` | Structured, calculable score definitions (inputs, bins/enum/formula scoring, output bands, golden vectors). Data = the calculator's database. |
+| `engine/ccscores` | Python **reference** calculation engine (stdlib-only). Safe formula AST, no `eval`. |
+| `web/` | React + Vite SPA + TypeScript engine port. Client-side only; no patient data leaves the browser. |
+| `tools/verify_definitions.py` | CI gate: schema + R# refs + golden-vector contract for `scores/*.json`. |
+| `docs/{REQUIREMENTS,ARCHITECTURE,RISK}.md` | SDLC artifacts (ISO/IEC/IEEE 12207, IEC 62304 Class B, ISO 14971). |
+
+## The Calculation Contract (enforced by verify_definitions.py)
+
+Sibling to the citation contract. A `scores/*.json` definition passes iff: (1) `id` ==
+filename stem; (2) `status` ∈ {current, superseded, contested} (never `unverified` — those
+are not calculable); (3) every `R#` in `references`/band `ref` resolves in `SCORES.md`
+References (reuses `verify_scores.parse()`); (4) ≥1 golden vector and the **reference engine
+reproduces every vector**; (5) JSON Schema valid (when `jsonschema` available). The
+**TypeScript engine must reproduce the identical vectors** (`web` vitest) — dual-impl V&V.
+Rounding is pinned half-up (`floor(x+0.5)`) in both engines. **Key principle:** the calculator
+exposes only scores passing BOTH the citation and calculation contracts.
 
 ## The Contract (enforced by verify_scores.py)
 

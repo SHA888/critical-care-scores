@@ -1,0 +1,58 @@
+{
+  "$schema": "../schema/score.schema.json",
+  "id": "qsofa",
+  "name": "qSOFA",
+  "full_name": "quick Sequential Organ Failure Assessment",
+  "section": 3,
+  "version": "1.0.0",
+  "status": "contested",
+  "references": ["R7"],
+  "purpose": "Bedside screen for poor outcome in suspected infection (Sepsis-3).",
+  "disclaimer": "Decision support only. qSOFA is a screen, not a sepsis definition; current Surviving Sepsis Campaign guidance de-emphasises it as a standalone tool. Verify against the primary source before any clinical decision.",
+  "provenance": {
+    "encoded": "2026-06-02",
+    "notes": "Sepsis-3 (Singer et al. JAMA 2016). Currency per SCORES.md R7 (SSC)."
+  },
+  "inputs": [
+    {
+      "id": "rr",
+      "label": "Respiratory rate",
+      "type": "integer",
+      "unit": "breaths/min",
+      "min": 0,
+      "max": 80,
+      "help": "1 point if ≥ 22/min.",
+      "mapping": { "type": "bins", "default_points": 0, "bins": [{ "op": ">=", "value": 22, "points": 1 }] }
+    },
+    {
+      "id": "sbp",
+      "label": "Systolic blood pressure",
+      "type": "integer",
+      "unit": "mmHg",
+      "min": 0,
+      "max": 300,
+      "help": "1 point if ≤ 100 mmHg.",
+      "mapping": { "type": "bins", "default_points": 0, "bins": [{ "op": "<=", "value": 100, "points": 1 }] }
+    },
+    {
+      "id": "altered_mentation",
+      "label": "Altered mentation (GCS < 15)",
+      "type": "boolean",
+      "help": "1 point if present.",
+      "mapping": { "type": "boolean", "true_points": 1, "false_points": 0 }
+    }
+  ],
+  "scoring": { "aggregate": { "type": "sum" } },
+  "output": {
+    "unit": "points",
+    "bands": [
+      { "min": 0, "max": 1, "label": "Lower risk", "interpretation": "qSOFA < 2: lower risk of poor outcome; does not exclude sepsis.", "color": "green", "ref": "R7" },
+      { "min": 2, "max": 3, "label": "Higher risk", "interpretation": "qSOFA ≥ 2: higher risk of in-hospital mortality / prolonged ICU stay in suspected infection.", "color": "red", "ref": "R7" }
+    ]
+  },
+  "tests": [
+    { "name": "all criteria met", "inputs": { "rr": 24, "sbp": 90, "altered_mentation": true }, "expected_score": 3, "expected_band": "Higher risk" },
+    { "name": "threshold 2", "inputs": { "rr": 22, "sbp": 100, "altered_mentation": false }, "expected_score": 2, "expected_band": "Higher risk" },
+    { "name": "none met", "inputs": { "rr": 18, "sbp": 120, "altered_mentation": false }, "expected_score": 0, "expected_band": "Lower risk" }
+  ]
+}
