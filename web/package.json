@@ -13,6 +13,7 @@
     "preview": "vite preview",
     "pretest": "npm run sync",
     "test": "vitest run",
+    "pretypecheck": "npm run sync",
     "typecheck": "tsc -b --noEmit"
   },
   "dependencies": {
