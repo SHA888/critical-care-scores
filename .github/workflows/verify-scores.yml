@@ -25,7 +25,7 @@ jobs:
         uses: astral-sh/setup-uv@v7
 
       - name: Citation contract (SCORES.md)
-        run: uv run --no-project python tools/verify_scores.py SCORES.md --max-unverified 161
+        run: uv run --no-project python tools/verify_scores.py SCORES.md --max-unverified 148
 
       - name: Calculation contract (scores/*.json — schema + refs + golden vectors)
         run: uv run --no-project --with jsonschema python tools/verify_definitions.py
@@ -35,7 +35,7 @@ jobs:
 
       - name: Resolve cited DOIs (Handle System API; push only)
         if: github.event_name == 'push'
-        run: uv run --no-project python tools/verify_scores.py SCORES.md --max-unverified 161 --check-dois
+        run: uv run --no-project python tools/verify_scores.py SCORES.md --max-unverified 148 --check-dois
 
       - uses: actions/setup-node@v6
         with:

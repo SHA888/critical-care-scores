@@ -1,12 +1,11 @@
 # §1 General ICU severity — Verification findings (Task 1.1)
 
-**Status:** PROPOSAL — pending expert sign-off. **Not yet applied to `SCORES.md`.**
-**Date:** 2026-06-02 · **Tier:** P1 / T1 (`TODO.md §3`) · **Section:** SCORES.md §1 (14 rows)
+**Status:** APPLIED — signed off 2026-06-14; dispositions written to `SCORES.md`, References R8–R23 added, CI ratchet lowered 161 → 148, both gates (incl. `--check-dois`) green.
+**Date:** 2026-06-02 (proposal) · 2026-06-14 (applied) · **Tier:** P1 / T1 (`TODO.md §3`) · **Section:** SCORES.md §1 (14 rows)
 
-> This is a working review artifact. Statuses below are **proposed**, not committed.
-> Fill the **Decision** column offline (approve / change-to-X / hold), then return it and
-> I'll apply the approved set to `SCORES.md`, add the References, lower the CI ratchet,
-> and run the gates. Nothing here touches the reference until you sign off.
+> Working review artifact, now committed. Sign-off decisions: APACHE → `contested`,
+> SAPS → `current`, ODIN → hold `unverified`; all other rows applied per the recommended
+> dispositions below. 13 rows verified, ODIN held.
 
 ## Method
 
@@ -31,7 +30,7 @@
 | 5 | LODS | `current` ⚠️ | R13 | medium | |
 | 6 | MODS | `current` ⚠️ | R14 | medium | |
 | 7 | ODIN | **hold `unverified`** ⚠️ | — (R22 if verified) | medium | |
-| 8 | OASIS | `current` | R15 | high | |
+| 8 | OASIS | `current` | R15, R23 | high | |
 | 9 | ICNARC model | `current` | R16 | high | |
 | 10 | TISS-28 / TISS-76 | `superseded` | R17 | high | |
 | 11 | NEMS | `current` | R18 | medium | |
@@ -77,7 +76,7 @@ Also verify ODIN → **161 → 147**.
 - **R12** — Vincent JL, Moreno R, Takala J, et al. *The SOFA (Sepsis-related Organ Failure Assessment) score to describe organ dysfunction/failure.* Intensive Care Med. 1996. DOI: https://doi.org/10.1007/BF01709751 (PMID 8844239)
 - **R13** — Le Gall JR, Klar J, Lemeshow S, et al. *The Logistic Organ Dysfunction system.* JAMA. 1996. DOI: https://doi.org/10.1001/jama.276.10.802 (PMID 8769590)
 - **R14** — Marshall JC, Cook DJ, Christou NV, et al. *Multiple organ dysfunction score: a reliable descriptor of a complex clinical outcome.* Crit Care Med. 1995. DOI: https://doi.org/10.1097/00003246-199510000-00007 (PMID 7587228)
-- **R15** — Johnson AEW, Kramer AA, Clifford GD. *A new severity of illness scale using a subset of APACHE data elements (OASIS).* Crit Care Med. 2013. DOI: https://doi.org/10.1097/CCM.0b013e31828a24fe (PMID 23660729)
+- **R15** — Johnson AEW, Kramer AA, Clifford GD. *A new severity of illness scale using a subset of Acute Physiology And Chronic Health Evaluation data elements shows comparable predictive accuracy.* Crit Care Med. 2013. DOI: https://doi.org/10.1097/CCM.0b013e31828a24fe (PMID 23660729) — _the Oxford Acute Severity of Illness Score (OASIS); title verbatim per PubMed._
 - **R16** — Harrison DA, Parry GJ, Carpenter JR, Short A, Rowan K. *A new risk prediction model for critical care: the ICNARC model.* Crit Care Med. 2007. DOI: https://doi.org/10.1097/01.CCM.0000259468.24532.44 (PMID 17334248). _Currency: ICNARC maintains the live **ICNARCH-2023** model (Case Mix Programme, 2024)._
 - **R17** — Miranda DR, de Rijk A, Schaufeli W. *Simplified Therapeutic Intervention Scoring System: the TISS-28 items.* Crit Care Med. 1996. DOI: https://doi.org/10.1097/00003246-199601000-00012. _Lineage: TISS-76 (obsolete) → TISS-28 → NEMS → NAS._
 - **R18** — Reis Miranda D, Moreno R, Iapichino G. *Nine equivalents of nursing manpower use score (NEMS).* Intensive Care Med. 1997. DOI: https://doi.org/10.1007/s001340050406
@@ -85,6 +84,7 @@ Also verify ODIN → **161 → 147**.
 - **R20** — Copeland GP, Jones D, Walters M. *POSSUM: a scoring system for surgical audit.* Br J Surg. 1991. DOI: https://doi.org/10.1002/bjs.1800780327. _P-POSSUM: Prytherch DR, Whiteley MS, Higgins B, et al. Br J Surg. 1998. DOI: https://doi.org/10.1046/j.1365-2168.1998.00840.x. Currency: embedded in UK NELA (Year 9 report, RCoA 2024)._
 - **R21** — Kahn JM, Kramer AA, Rubenfeld GD. *Transferring critically ill patients out of hospital improves the standardized mortality ratio: a simulation study.* Chest. 2007. DOI: https://doi.org/10.1378/chest.06-0741
 - **(R22 — only if ODIN verified)** — Fagon JY, Chastre J, Novara A, Medioni P, Gibert C. *Characterization of ICU patients using a model based on organ dysfunctions and/or infection: the ODIN model.* Intensive Care Med. 1993. DOI: https://doi.org/10.1007/BF01720528 (PMID 8315120)
+- **R23** — Zou J, Chen H, Liu C, et al. *Development and validation of a nomogram to predict the 30-day mortality risk of patients with intracerebral hemorrhage.* Front Neurosci. 2022;16:942100. DOI: https://doi.org/10.3389/fnins.2022.942100 (PMID 36033629) — _OASIS currency: applied as a comparator severity score on a contemporary MIMIC-III ICU cohort; validation-cohort OASIS AUC 0.728. Source: PubMed. DOI resolves ✓ (Handle System API)._
 
 ---
 
@@ -122,8 +122,9 @@ Also verify ODIN → **161 → 147**.
 - Rationale: no authoritative currency source; `superseded` overclaims (no designating authority). **Hold `unverified`** is the honest default; alternative `superseded` (legacy).
 
 ### 8. OASIS → `current`
-- Primary: Johnson 2013 (R15). Currency: repeated MIMIC/eICU validation (eICU n=108,402 AUC ~0.79; MIMIC-IV AUC 0.71), OASIS+ ML extension = active use not replacement.
-- Rationale: tier-3/4 — operative parsimonious EHR severity score → `current`.
+- Primary: Johnson 2013 (R15); internal validation set 2010–2011, AUROC 0.88.
+- Currency: OASIS remains the de-facto standard ICU severity-score *benchmark* in contemporary database research (MIMIC-IV / eICU / MIMIC-III). Documented currency ref **R23** (Zou 2022) reports OASIS validation-cohort AUC 0.728 on a 2022 MIMIC-III cohort. Note: recent literature uses OASIS predominantly as a comparator baseline rather than as a dedicated external-validation target — continued-use evidence, not a fresh standalone revalidation.
+- Rationale: tier-3/4 — operative parsimonious EHR severity score, no successor → `current`.
 
 ### 9. ICNARC model → `current`
 - Primary: Harrison 2007 (R16). Currency: ICNARC (UK audit authority) maintains the live **ICNARCH-2023** model via serial recalibration (2014→2015→2018→2023).
@@ -153,17 +154,17 @@ Also verify ODIN → **161 → 147**.
 
 ## Sign-off
 
-- [ ] Approve all 6 high-confidence rows (SOFA, OASIS, ICNARC, NAS, POSSUM, TISS).
-- [ ] APACHE: `contested` ☐ / `current` ☐ / other: __________
-- [ ] SAPS: `current` ☐ / `contested` ☐ / other: __________
-- [ ] MPM: `current` ☐ / `contested` ☐ / hold ☐
-- [ ] LODS / MODS: `current` ☐ / annotate research-only ☐ / hold ☐
-- [ ] ODIN: hold `unverified` ☐ / `superseded` ☐
-- [ ] SMR: `current` + annotate ☐ / treat as not-a-score ☐
-- [ ] NEMS: `current` ☐ / `superseded` by NAS ☐
+- [x] Approve all 6 high-confidence rows (SOFA, OASIS, ICNARC, NAS, POSSUM, TISS).
+- [x] APACHE: **`contested`** ✅
+- [x] SAPS: **`current`** ✅
+- [x] MPM: **`current`** ✅
+- [x] LODS / MODS: **`current`** ✅
+- [x] ODIN: **hold `unverified`** ✅
+- [x] SMR: **`current`** + annotate as output metric ✅
+- [x] NEMS: **`current`** ✅
+- [x] OASIS currency strengthened with R23 (Zou 2022, MIMIC-III validation AUC 0.728).
 
-**Decided by:** ______________________  **Date:** ____________
+**Decided by:** Kresna Sucandra  **Date:** 2026-06-14
 
-On return, I apply the approved set to `SCORES.md`, add the approved References, set the
-CI ceiling to the new count, run all gates (incl. `--check-dois`) + independent review,
-commit, and mark Plans 1.1 done.
+Applied: 13 §1 rows verified (ODIN held `unverified`), References R8–R23 added to `SCORES.md`,
+CI ceiling lowered 161 → 148, contract + `--check-dois` gates green. Plans 1.1 → done.
